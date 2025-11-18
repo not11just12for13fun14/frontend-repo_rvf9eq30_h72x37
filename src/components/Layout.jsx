@@ -21,6 +21,7 @@ const navItems = [
 
 export default function Layout() {
   const location = useLocation()
+  const guestMode = (import.meta.env.VITE_GUEST_MODE || 'true') === 'true'
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-sky-50 text-slate-700">
@@ -93,6 +94,17 @@ export default function Layout() {
                 </div>
               </div>
             </div>
+            {guestMode && (
+              <div className="border-t border-slate-100/80 bg-gradient-to-r from-blue-50 via-cyan-50 to-amber-50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 text-xs text-slate-600 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex w-1.5 h-1.5 rounded-full" style={{background: colors.accent}}></span>
+                    <span>Mode démo actif — accès invité sans authentification (environnement de test)</span>
+                  </div>
+                  <div className="hidden sm:block text-slate-400">VITE_GUEST_MODE=true</div>
+                </div>
+              </div>
+            )}
           </header>
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
