@@ -1,5 +1,7 @@
-import React from 'react'
-import Spline from '@splinetool/react-spline'
+import React, { Suspense, useEffect, useState } from 'react'
+
+// Lazy-load Spline to avoid blocking first paint and prevent hard crashes on unsupported devices
+const LazySpline = React.lazy(() => import('@splinetool/react-spline').then(m => ({ default: m.default })))
 
 const colors = {
   primary: '#3F5C56',
@@ -8,15 +10,54 @@ const colors = {
   secondary: '#5B85AA'
 }
 
+function FallbackBackground() {
+  return (
+    <div className="absolute inset-0 bg-gradient-to-br from-white via-slate-50 to-slate-100" />
+  )
+}
+
+function SafeSpline() {
+  const [canRender, setCanRender] = useState(false)
+  const [errored, setErrored] = useState(false)
+
+  useEffect(() => {
+    // Basic feature checks for WebGL to avoid white screens on unsupported agents
+    try {
+      const canvas = document.createElement('canvas')
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
+      setCanRender(!!gl)
+    } catch {
+      setCanRender(false)
+    }
+  }, [])
+
+  if (!canRender || errored) return <FallbackBackground />
+
+  return (
+    <Suspense fallback={<FallbackBackground />}>
+      <LazySpline
+        scene="https://prod.spline.design/41MGRk-UDPKO-l6W/scene.splinecode"
+        onLoad={() => { /* no-op */ }}
+        onError={() => setErrored(true)}
+        style={{ width: '100%', height: '100%' }}
+      />
+    </Suspense>
+  )
+}
+
 export default function Login() {
   return (
     <div className="min-h-screen bg-white relative">
+      {/* Background (Spline or graceful fallback) */}
       <div className="absolute inset-0">
-        <Spline scene="https://prod.spline.design/41MGRk-UDPKO-l6W/scene.splinecode" style={{ width: '100%', height: '100%' }} />
+        <SafeSpline />
+        <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px]" />
       </div>
+
+      {/* Foreground content */}
       <div className="relative min-h-screen flex items-center justify-center p-6">
         <div className="max-w-md w-full">
-          <div className="bg-white/80 backdrop-blur-xl border border-slate-100 rounded-3xl p-8 shadow-[0_20px_60px_rgba(0,0,0,0.08)]">
+          <div className="bg-white/85 backdrop-blur-xl border border-slate-100 rounded-3xl p-8 shadow-[0_20px_60px_rgba(0,0,0,0.08)]">
             <div className="text-center mb-8">
               <div className="inline-flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{background: colors.primary}}>
