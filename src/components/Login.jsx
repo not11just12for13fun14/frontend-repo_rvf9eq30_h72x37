@@ -1,18 +1,20 @@
 import React, { Suspense, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 
 // Lazy-load Spline to avoid blocking first paint and prevent hard crashes on unsupported devices
 const LazySpline = React.lazy(() => import('@splinetool/react-spline').then(m => ({ default: m.default })))
 
 const colors = {
-  primary: '#3F5C56',
-  text: '#506366',
-  accent: '#EDAE49',
-  secondary: '#5B85AA'
+  primary: '#2563eb',
+  text: '#0f172a',
+  accent: '#f59e0b',
+  secondary: '#22d3ee'
 }
 
 function FallbackBackground() {
   return (
-    <div className="absolute inset-0 bg-gradient-to-br from-white via-slate-50 to-slate-100" />
+    <div className="absolute inset-0 bg-gradient-to-br from-white via-slate-50 to-sky-50" />
   )
 }
 
@@ -21,7 +23,6 @@ function SafeSpline() {
   const [errored, setErrored] = useState(false)
 
   useEffect(() => {
-    // Basic feature checks for WebGL to avoid white screens on unsupported agents
     try {
       const canvas = document.createElement('canvas')
       const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
@@ -37,7 +38,6 @@ function SafeSpline() {
     <Suspense fallback={<FallbackBackground />}>
       <LazySpline
         scene="https://prod.spline.design/41MGRk-UDPKO-l6W/scene.splinecode"
-        onLoad={() => { /* no-op */ }}
         onError={() => setErrored(true)}
         style={{ width: '100%', height: '100%' }}
       />
@@ -57,10 +57,15 @@ export default function Login() {
       {/* Foreground content */}
       <div className="relative min-h-screen flex items-center justify-center p-6">
         <div className="max-w-md w-full">
-          <div className="bg-white/85 backdrop-blur-xl border border-slate-100 rounded-3xl p-8 shadow-[0_20px_60px_rgba(0,0,0,0.08)]">
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25 }}
+            className="bg-white/85 backdrop-blur-xl border border-slate-100 rounded-3xl p-8 shadow-[0_20px_60px_rgba(0,0,0,0.08)]"
+          >
             <div className="text-center mb-8">
               <div className="inline-flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{background: colors.primary}}>
+                <div className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm" style={{background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`}}>
                   <span className="text-white font-semibold">E</span>
                 </div>
                 <div className="text-left">
@@ -75,13 +80,13 @@ export default function Login() {
             <form className="space-y-4">
               <div className="space-y-1.5">
                 <label className="text-sm text-slate-600">Email</label>
-                <input type="email" placeholder="prenom@entreprise.com" className="w-full h-11 px-4 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200/70 transition" />
+                <input type="email" placeholder="prenom@entreprise.com" className="w-full h-11 px-4 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-200 transition" />
               </div>
               <div className="space-y-1.5">
                 <label className="text-sm text-slate-600">Mot de passe</label>
-                <input type="password" placeholder="••••••••" className="w-full h-11 px-4 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200/70 transition" />
+                <input type="password" placeholder="••••••••" className="w-full h-11 px-4 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-200 transition" />
               </div>
-              <button type="button" className="w-full h-11 rounded-2xl text-white font-medium shadow-[0_10px_30px_rgba(237,174,73,0.3)] transition hover:opacity-95" style={{background: colors.accent}}>Se connecter</button>
+              <button type="button" className="w-full h-11 rounded-2xl text-white font-medium shadow-[0_10px_30px_rgba(59,130,246,0.35)] transition hover:opacity-95" style={{background: colors.primary}}>Se connecter</button>
               <div className="relative">
                 <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200"></div></div>
                 <div className="relative flex justify-center"><span className="bg-white px-3 text-xs text-slate-400">ou</span></div>
@@ -91,7 +96,15 @@ export default function Login() {
                 Continuer avec Google
               </button>
             </form>
-          </div>
+
+            {/* QA shortcut */}
+            <div className="mt-6">
+              <Link to="/dashboard" className="group inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 group-hover:scale-110 transition" />
+                Aperçu instantané du portail
+              </Link>
+            </div>
+          </motion.div>
         </div>
       </div>
     </div>
